@@ -38,6 +38,7 @@ jobs:
         cd build
         cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain -DOSQUERY_BUILD_TESTS=ON ..
         cmake --build . -j10
+        ctest --output-on-failure
 
     - name: Package osquery
       run: |
@@ -45,10 +46,7 @@ jobs:
         mkdir package_data
         export DESTDIR=$(pwd)/package_data
         cmake --build . --target install
-    - name: Run osquery tests
-      run: |
-        ctest --output-on-failure
-        
+
     - name: Create and Upload Artifact
       uses: actions/upload-artifact@v2
       with:
