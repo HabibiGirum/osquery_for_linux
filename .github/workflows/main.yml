@@ -1,4 +1,4 @@
-name: Build osquery on Linux
+name: Build, Test, and Package osquery on Linux
 
 on: [push]
 
@@ -36,5 +36,21 @@ jobs:
         cd osquery
         mkdir build
         cd build
-        cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain ..
+        cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain -DOSQUERY_BUILD_TESTS=ON ..
         cmake --build . -j10
+
+    - name: Package osquery
+      run: |
+        cd build
+        mkdir package_data
+        export DESTDIR=$(pwd)/package_data
+        cmake --build . --target install
+    - name: Run osquery tests
+      run: |
+        ctest --output-on-failure
+        
+    - name: Create and Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: package_data
+        path: build/package_data
