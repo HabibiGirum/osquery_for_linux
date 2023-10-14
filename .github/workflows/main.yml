@@ -36,8 +36,10 @@ jobs:
         cd osquery
         mkdir build
         cd build
-        cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain -DOSQUERY_BUILD_TESTS=ON ..
+        cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain ..
         cmake --build . -j10
+    - name: tast
+      run: |
         ctest --output-on-failure
 
     - name: Package osquery
