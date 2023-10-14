@@ -1,0 +1,40 @@
+name: Build osquery on Linux
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install prerequisites
+      run: |
+        sudo apt update
+        sudo apt install --no-install-recommends git python3 bison flex make
+        sudo apt install --no-install-recommends python3-pip python3-setuptools python3-psutil python3-six python3-wheel
+        pip3 install timeout_decorator thrift==0.11.0 osquery pexpect==3.3
+        sudo apt install --no-install-recommends rpm binutils
+
+    - name: Download and install the osquery toolchain
+      run: |
+        export ARCH=$(uname -m)
+        wget https://github.com/osquery/osquery-toolchain/releases/download/1.1.0/osquery-toolchain-1.1.0-${ARCH}.tar.xz
+        sudo tar xvf osquery-toolchain-1.1.0-${ARCH}.tar.xz -C /usr/local
+
+    - name: Download and install CMake
+      run: |
+        export ARCH=$(uname -m)
+        wget https://cmake.org/files/v3.21/cmake-3.21.4-linux-${ARCH}.tar.gz
+        sudo tar xvf cmake-3.21.4-linux-${ARCH}.tar.gz -C /usr/local --strip 1
+
+    - name: Build osquery
+      run: |
+        git clone https://github.com/osquery/osquery
+        cd osquery
+        mkdir build
+        cd build
+        cmake -DOSQUERY_TOOLCHAIN_SYSROOT=/usr/local/osquery-toolchain ..
+        cmake --build . -j10
