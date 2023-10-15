@@ -44,7 +44,6 @@ jobs:
 
     - name: Package osquery
       run: |
-        cd build
         mkdir package_data
         export DESTDIR=$(pwd)/package_data
         cmake --build . --target install
